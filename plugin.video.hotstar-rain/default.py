@@ -81,8 +81,8 @@ else:
 s=requests.Session()
 
 def addon_log(string):
-    if debug == 'true':
-        xbmc.log("[plugin.video.hotstar-rain-%s]: %s" %(addon_version, string))
+	if debug = 'true':
+		xbmc.log("[plugin.video.hotstar-rain-%s]: %s" %(addon_version, string))
 		
 def changes():
 	installed = Addon.getSetting('version')
@@ -402,7 +402,7 @@ def get_search():
 		duration = result['duration']
 		search_link = 'http://getcdn.hotstar.com/AVS/besc?action=GetCDN&asJson=Y&channel=PCTV&type=VOD&id='+str(result['contentId'])
 		search_img = 'http://media0-starag.startv.in/r1/thumbs/PCTV/'+str(result['urlPictures'])[-2:]+'/'+result['urlPictures']+'/PCTV-'+result['urlPictures']+'-vl.jpg'
-		if 'Live' in title:
+		if 'LIVE' in result['episodeTitle'] or 'LIVE' in result['objectSubtype']:
 			addDir(9, title, search_link, search_img,duration, False)
 		else:
 			addDir(9, title, search_link, search_img,duration, True)
@@ -572,23 +572,13 @@ def get_video_url():
 		addon_log('quality is '+quality)
 		addon_log(manifest_url)
 		if (manifest_url):
-			if (quality=='highest' or quality=='let me choose'):
-				matchlist2 = re.compile("x(\d+).+?(http.+?)\n", re.DOTALL).findall(str(manifest_url))
-			elif (quality == '720p'):
-				matchlist2 = re.compile("x(720)[^\n]*\n([^\n]*)", re.DOTALL).findall(str(manifest_url))
-			elif (quality == '404p'):
-				matchlist2 = re.compile("x(404).+?(http.+?)\n", re.DOTALL).findall(str(manifest_url))
-			else:
-				matchlist2 = re.compile("x(360).+?(http.+?)\n", re.DOTALL).findall(str(manifest_url))
+			matchlist2 = re.compile("BANDWIDTH=(\d+).+?(http.+?)\n", re.DOTALL).findall(str(manifest_url))
+			matchlist2.sort(key=lambda l: l and l[0], reverse=True)
 			if matchlist2:
 				addon_log('inside matchlist2 to separate size,video')
-				for (size, video) in matchlist2:
-					addon_log(size+'======'+video)
-					if size:
-						size = int(size)
-					else:
-						size = 0
-					videos.append( [size, video] )
+				for (bw, video) in matchlist2:
+					addon_log(bw+'======'+video)
+					videos.append( [int(bw), video] )
 		else:
 			videos.append( [-2, match] )
 
